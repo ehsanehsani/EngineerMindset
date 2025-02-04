@@ -48,6 +48,8 @@ Imagine two customers trying to buy the last product in stock at the same time:
 - **Customer B** also tries to buy it, but the system must prevent them from doing so until Customer A’s transaction is completed.
 
 With **Isolation**, the system ensures that **Customer B** doesn’t get access to the same product until Customer A’s transaction is committed or rolled back. This prevents **race conditions** where two transactions could conflict with each other.
+### Does this mean transactions can’t run simultaneously?
+No, transactions can run simultaneously. However, Isolation ensures that they don't interfere with each other in a way that causes data corruption or inconsistent results. This means that each transaction works as if it is the only one in the system, and the changes made by one transaction are not visible to others until the transaction is fully completed (committed).
 
 ---
 
