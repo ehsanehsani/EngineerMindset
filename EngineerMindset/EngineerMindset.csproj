@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="API\API-General-Terms.md" />
+  </ItemGroup>
+
 </Project>
