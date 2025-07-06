@@ -8,3 +8,4 @@
   - [Understanding Sockets](EngineerMindset/web-services/sockets.md)
 - **General Programming**
   - [Dependency Injection](EngineerMindset/general-programming/DI-IoC.md)
+  - [Understanding Caching in .NET](EngineerMindset/general-programming/caching.md)
