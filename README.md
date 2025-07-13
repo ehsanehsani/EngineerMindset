@@ -9,3 +9,5 @@
 - **General Programming**
   - [Dependency Injection](EngineerMindset/general-programming/DI-IoC.md)
   - [Understanding Caching in .NET](EngineerMindset/general-programming/caching.md)
+- **What I Missed In Programming**
+  - [What is Functional Programming?](EngineerMindset/What_I_Missed_In_Programming/Functional_Programming.md)
