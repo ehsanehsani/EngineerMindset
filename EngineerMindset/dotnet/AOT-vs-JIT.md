@@ -1,6 +1,6 @@
-# .NET JIT vs AOT: Understanding Ahead-Of-Time Compilation for C# Developers
+# .NET AOT vs JIT: Understanding Ahead-Of-Time Compilation for C# Developers
 
-For mid-level to advanced C# developers, understanding how .NET executes your code is crucial when optimizing performance, resource usage, and deployment. Two core concepts—**Just-In-Time (JIT)** and **Ahead-Of-Time (AOT)** compilation—shape the runtime behavior of your applications. This article explains both, compares them, and offers guidance on real-world usage and scenarios.
+For mid-level to advanced C# developers, understanding how .NET executes your code is crucial when optimizing performance, resource usage, and deployment. Two core concepts, **Just-In-Time (JIT)** and **Ahead-Of-Time (AOT)** compilation, shape the runtime behavior of your applications. This article explains both, compares them, and offers guidance on real-world usage and scenarios.
 
 ---
 
@@ -90,7 +90,7 @@ AOT is less suitable for applications that rely heavily on reflection, plugins, 
 - Needs .NET runtime installed on the target system.
 
 ### **AOT Advantages**
-- Instant startup—code is ready to run.
+- Instant startup code is ready to run.
 - Lower memory usage and smaller binaries.
 - No external .NET runtime required.
 - Security is enhanced via reduced runtime surface area.
@@ -124,6 +124,7 @@ Starting from .NET 7+, you can publish your app using Native AOT:
 ## Additional Resources
 
 - [Microsoft Docs: Native AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/)
+- [Deep dive on native AOT](https://youtu.be/Gmn-4mVSjq4?si=OgjS25MbrHaKSoIe)
 - [aminnez.com: JIT vs AOT Compiler Pros & Cons](https://aminnez.com/programming-concepts/jit-vs-aot-compiler-pros-cons)
 
 ---
