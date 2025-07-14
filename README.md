@@ -1,6 +1,8 @@
 # Table of Contents
 
 - [README](README.md)
+- **dotnet**
+- [.NET AOT vs JIT](EngineerMindset/dotnet/AOT-vs-JIT.md)
 - **Web Services**
   - [Webhooks vs REST](EngineerMindset/web-services/Webhook-vs-REST.md)
   - [WEB API vs REST](EngineerMindset/web-services/API-General-Terms.md)
