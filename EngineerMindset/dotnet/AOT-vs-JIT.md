@@ -138,15 +138,6 @@ When choosing between Just-In-Time (JIT) and Ahead-Of-Time (AOT) compilation in 
 - Limited support for reflection, dynamic code generation, and runtime assembly loading.
 - Debugging can be different, often relying on native debugging tools.
 - May not suit large, complex, or highly dynamic applications that depend on runtime flexibility.
-
----
-
-## Advanced AOT Optimizations (From Microsoft Deep dive on native AOT .NET Conf 2024)
-
-- **Frozen GC Heap:** If static constructors are simple, AOT can eliminate them entirely and pre-allocate their effects at build time. This speeds up startup and reduces allocations.
-- **Dead Code Elimination:** The AOT compiler analyzes all reachable code and discards anything that isn’t used, including dead branches and type checks.
-- **Whole-Program Analysis:** Because no new code can be loaded at runtime, AOT can optimize the entire program, enabling aggressive inlining and further size reductions.
-
 ---
 
 ## Binary Size: How Small Can a .NET App Get?
@@ -175,16 +166,6 @@ Starting from .NET 7+, you can publish your app using Native AOT:
    dotnet publish -c Release -r win-x64 --self-contained
    ```
    Replace `win-x64` with your target runtime.
-
----
-
-## Current and Future Support
-
-- **.NET 7:** Console projects and native libraries.
-- **.NET 8:** ASP.NET Web APIs.
-- **.NET 9 (preview):** MAUI, Windows App SDK, and WWP support.
-
-Microsoft is expanding AOT support based on developer feedback—expect more application types and scenarios in future .NET releases.
 
 ---
 
