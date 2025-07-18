@@ -14,4 +14,5 @@
   - [Heap and Stack](EngineerMindset/general-programming/Heap-and-Stack.md)
   - [SOLID](EngineerMindset/general-programming/SOLID)
 - **What I Missed In Programming**
-  - [What is Functional Programming?](What_I_Missed_In_Programming/Functional_Programming.md)
+  - [Functional Programming](Overlooked_Concepts_In_Programming/Functional_Programming.md)
+  - [What is BSD](Overlooked_Concepts_In_Programming/BSD.md)
