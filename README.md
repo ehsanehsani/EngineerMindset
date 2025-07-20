@@ -16,3 +16,4 @@
 - **What I Missed In Programming**
   - [Functional Programming](Overlooked_Concepts_In_Programming/Functional_Programming.md)
   - [What is BSD](Overlooked_Concepts_In_Programming/BSD.md)
+  - [What is Kernel](Overlooked_Concepts_In_Programming/Kernel.md)
