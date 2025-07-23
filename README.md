@@ -17,3 +17,4 @@
   - [Functional Programming](Overlooked_Concepts_In_Programming/Functional_Programming.md)
   - [What is BSD](Overlooked_Concepts_In_Programming/BSD.md)
   - [What is Kernel](Overlooked_Concepts_In_Programming/Kernel.md)
+  - [OS Session1](Overlooked_Concepts_In_Programming/OS/Session1.md)
