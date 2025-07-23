@@ -1,6 +1,6 @@
 # Session 1: Essential Concepts for Programmers Often Overlooked
 
-This article is a comprehensive expansion and re-organization of the core notes from my first technical session, aimed at covering fundamental operating system and low-level programming concepts that many developers may not have learned deeply. The goal is to build a solid foundation for writing portable, robust, and efficient software.
+This article is a comprehensive expansion and re-organization of the core notes from my first technical session with my mentor [Vahid](https://github.com/pylover) , aimed at covering fundamental operating system and low-level programming concepts that many developers may not have learned deeply. The goal is to build a solid foundation for writing portable, robust, and efficient software.
 
 ---
 
