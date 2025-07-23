@@ -116,3 +116,73 @@ A **zombie process** is one that has finished executing but has not been fully c
 - **Cleanup:** The parent process should "reap" its children. If not, the kernel may assign `init` or `systemd` as the new parent to perform cleanup.
 
 ---
+
+## 8. Signals and the `kill` Command
+
+**Signals** are brief, asynchronous messages sent to processes by the OS or users.
+
+- **Common Signals:**
+  - `SIGTERM` (15): Polite request to terminate
+  - `SIGKILL` (9): Forceful, non-ignorable termination
+  - `SIGSTOP`: Temporarily pause
+  - `SIGCONT`: Continue after a pause
+  - `SIGHUP`: Reload configuration
+
+- **Signal Properties:**
+  - Each signal has a name and a number.
+  - Processes can handle signals via default behavior or custom handlers.
+  - Some signals are ignorable (`SIGTERM`), others are not (`SIGKILL`, `SIGSTOP`).
+
+- **Sending Signals:**
+  - **Via `kill`:**
+    ```sh
+    kill -9 1234
+    ```
+    - Sends signal 9 (`SIGKILL`) to process with PID 1234, forcing immediate termination.
+  - **Other Usage:** Kill is a generic command for sending any signal, not just termination.
+
+---
+
+## 9. Bash: The Ubiquitous Shell
+
+- **Why Bash?** Bash is available nearly everywhere and is highly portable.
+- **Terminal Interaction:** Bash itself is a process, using standard input/output for communication.
+- **Unix Philosophy:** "Everything is a file." This enables powerful command chaining and redirection.
+  - **Piping:** Connect commands together:
+    ```sh
+    ls | grep bin
+    ```
+    - Sends output from `ls` as input to `grep`.
+  - **Redirection:**
+    ```sh
+    ls > bar
+    ```
+    - Redirects output from `ls` to the file `bar`.
+
+---
+
+## 10. The Structure of Man Pages
+
+Man pages in Unix/Linux are divided into **nine sections**, each serving a specific purpose:
+
+| Section | Description                                              | Examples                                     |
+|---------|---------------------------------------------------------|----------------------------------------------|
+| 1       | User Commands (executed by users)                       | `ls`, `mkdir`                                |
+| 2       | System Calls (directly by kernel)                       | `open()`, `read()`                           |
+| 3       | C Library Functions                                     | `printf()`, `malloc()`                       |
+| 4       | Special Files and Devices                               | `/dev/null`, `/dev/random`                   |
+| 5       | File Formats and Configuration Files                    | `/etc/passwd`                                |
+| 6       | Games and Screensavers                                  | (historical, rarely used now)                |
+| 7       | Miscellaneous (macros, standards, conventions)          | `regex`, `signal`                            |
+| 8       | System Administration Commands (root/admin tools)       | `mount`, `iptables`, `reboot`                |
+| 9       | Kernel Routines (for kernel/module development)         | (not always available on all systems)        |
+
+---
+
+## 11. Key Takeaways
+
+- **Portability is critical:** Write code that can run on multiple platforms by adhering to standards like POSIX.
+- **Understand your environment:** Learn how operating systems manage resources and processes.
+- **Master your tools:** Make a habit of reading and understanding man pages.
+- **Leverage Unix concepts:** Use streams, signals, and process management for robust software.
+- **Practice with Bash:** Its ubiquity and power make it essential for any serious programmer.
