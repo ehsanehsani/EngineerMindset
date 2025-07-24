@@ -18,3 +18,4 @@
   - [What is BSD](Overlooked_Concepts_In_Programming/BSD.md)
   - [What is Kernel](Overlooked_Concepts_In_Programming/Kernel.md)
   - [OS Session1](Overlooked_Concepts_In_Programming/OS/Session1.md)
+  - [OS Session1-Understanding stdin, stdout, and stderr](Overlooked_Concepts_In_Programming/OS/Session1-stdin-out-err.md)
