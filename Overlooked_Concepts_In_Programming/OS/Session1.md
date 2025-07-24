@@ -66,14 +66,13 @@ The `man` (manual) command is indispensable for reading documentation.
   ```
   - This opens the manual page for the `man` command itself.
 - **Pro Tip:** Get in the habit of thoroughly reading Unix/Linux documentation. Unlike some other platforms (e.g., Microsoft), Unix man pages are usually concise and highly informative.
-- **Navigation:** When viewing a man page (opened in `vim` by default), use `/` to search and `n` to move to the next occurrence.
-
 - **Example: `malloc` Man Page Highlights**
   ```
-  malloc() allocates size bytes and returns a pointer. The memory is not initialized.
+  malloc() allocates size bytes and returns a pointer. The memory is not initialized. (means there might be some data!)
   If size is 0, malloc() returns a unique pointer for later use with free().
   ```
   - **Details:** `size` refers to the number of bytes to allocate. The returned memory is uninitialized and may contain leftover data.
+- **Navigation:** When viewing a man page (opened in `vim` by default), use `/` to search and `n` to move to the next occurrence.
 
 ---
 
