@@ -27,7 +27,31 @@ The most critical role of an operating system (OS) is **resource allocation**, w
 
 ---
 
-## 3. Running Linux on Windows: WSL
+## 3. Memory Leak: Definition and Explanation
+
+A **memory leak** occurs when a program allocates memory (for example, using `malloc()` in C or a similar mechanism in other languages) but fails to release it back to the operating system or memory manager after that memory is no longer needed. This means that the memory remains reserved and unavailable for future use, even though the program itself can no longer access or utilize it.
+
+**Key Points:**
+- **Resource Loss:** The leaked memory is effectively "lost" to both the application and the system until the process terminates.
+- **Progressive Impact:** If a program repeatedly leaks memory, over time it will consume more and more RAM. This can result in slower performance, system instability, or even a crash if system memory is exhausted.
+- **Critical for Long-Running Programs:** Memory leaks are especially dangerous in software intended to run for long periods (such as servers or background services), as the effects accumulate.
+- **Detection:** Specialized tools like `valgrind` on Linux are commonly used to detect memory leaks during development and testing.
+
+**Example in C:**
+```c
+void foo() {
+    int *ptr = malloc(100 * sizeof(int));
+    // ... use ptr ...
+    // Forgot to call free(ptr); here — memory is leaked!
+}
+```
+
+**Summary:**  
+When a process finishes its work, it should release any RAM it claimed. If it does not—meaning it loses all references to the allocated memory without properly freeing it—this is called a **memory leak**.
+
+---
+
+## 4. Running Linux on Windows: WSL
 
 To experience Linux within Windows, you can use **Windows Subsystem for Linux (WSL)**.
 
@@ -56,7 +80,7 @@ To experience Linux within Windows, you can use **Windows Subsystem for Linux (W
 
 ---
 
-## 4. Documentation: The `man` Command
+## 5. Documentation: The `man` Command
 
 The `man` (manual) command is indispensable for reading documentation.
 
@@ -76,7 +100,7 @@ The `man` (manual) command is indispensable for reading documentation.
 
 ---
 
-## 5. Understanding Processes and I/O Streams
+## 6. Understanding Processes and I/O Streams
 
 **Processes** interact with the outside world primarily through three standard streams:
 
@@ -94,7 +118,7 @@ These streams are treated as open files, operating as data streams (not physical
 
 ---
 
-## 6. The Shell: Interface Between User and Kernel
+## 7. The Shell: Interface Between User and Kernel
 
 A **shell** is a program that mediates between the user and the operating system kernel.
 
@@ -104,7 +128,7 @@ A **shell** is a program that mediates between the user and the operating system
 
 ---
 
-## 7. Zombie Processes
+## 8. Zombie Processes
 
 A **zombie process** is one that has finished executing but has not been fully cleaned up by the system.
 
@@ -116,7 +140,7 @@ A **zombie process** is one that has finished executing but has not been fully c
 
 ---
 
-## 8. Signals and the `kill` Command
+## 9. Signals and the `kill` Command
 
 **Signals** are brief, asynchronous messages sent to processes by the OS or users.
 
@@ -142,7 +166,7 @@ A **zombie process** is one that has finished executing but has not been fully c
 
 ---
 
-## 9. Bash: The Ubiquitous Shell
+## 10. Bash: The Ubiquitous Shell
 
 - **Why Bash?** Bash is available nearly everywhere and is highly portable.
 - **Terminal Interaction:** Bash itself is a process, using standard input/output for communication.
@@ -160,7 +184,7 @@ A **zombie process** is one that has finished executing but has not been fully c
 
 ---
 
-## 10. The Structure of Man Pages
+## 11. The Structure of Man Pages
 
 Man pages in Unix/Linux are divided into **nine sections**, each serving a specific purpose:
 
@@ -178,7 +202,7 @@ Man pages in Unix/Linux are divided into **nine sections**, each serving a speci
 
 ---
 
-## 11. Key Takeaways
+## 12. Key Takeaways
 
 - **Portability is critical:** Write code that can run on multiple platforms by adhering to standards like POSIX.
 - **Understand your environment:** Learn how operating systems manage resources and processes.
