@@ -111,6 +111,7 @@ The `man` (manual) command is indispensable for reading documentation.
 These streams are treated as open files, operating as data streams (not physical files).
 
 - **Signals:** Additionally, processes can communicate asynchronously with the OS or other processes using **signals**. These are used for notifications, control, and state management (e.g., termination, pausing).
+- **Shared Memory** Processes also can communicate with the OS using Shared Memory (Advanced Topic)
 
 ### Example: Sending Signals
 
