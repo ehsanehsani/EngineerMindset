@@ -211,7 +211,7 @@ public class HybridCacheService
 
 ## Further Reading
 
-- [Microsoft Docs: Caching in .NET](https://learn.microsoft.com/en-us/aspnet/core/performance/caching/)
+- [Microsoft Docs: Caching in .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/caching)
 - [IMemoryCache Interface](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.memory.imemorycache)
 - [IDistributedCache Interface](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.caching.distributed.idistributedcache)
 - [Redis Cache Provider](https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed)
