@@ -13,7 +13,7 @@
   - [Understanding Caching in .NET](EngineerMindset/general-programming/caching.md)
   - [Heap and Stack](EngineerMindset/general-programming/Heap-and-Stack.md)
   - [SOLID](EngineerMindset/general-programming/SOLID)
-- **What I Missed In Programming**
+- **Overlooked Concepts In Programming**
   - [Functional Programming](Overlooked_Concepts_In_Programming/Functional_Programming.md)
   - [What is BSD](Overlooked_Concepts_In_Programming/BSD.md)
   - [What is Kernel](Overlooked_Concepts_In_Programming/Kernel.md)
