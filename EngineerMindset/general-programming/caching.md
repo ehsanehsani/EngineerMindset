@@ -197,6 +197,10 @@ public class HybridCacheService
 - Need for both speed and shared state
 - Reducing cost/load on distributed cache
 
+### HybridCache in .NET 9: Official Hybrid Caching Made Easy
+
+Starting with .NET 9, ASP.NET Core introduces the official `HybridCache` library, which streamlines hybrid caching by combining in-memory and distributed caches into a unified service. With simple registration (`AddHybridCache`) and powerful APIs like `GetOrCreateAsync`, developers can efficiently manage cache entries, prevent cache stampede, and use advanced features such as tag-based invalidation and customizable serialization. This built-in solution replaces manual hybrid cache implementations, making high-performance, scalable caching easier and more robust than ever.
+
 ---
 
 ## Summary
