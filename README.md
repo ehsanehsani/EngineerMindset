@@ -12,7 +12,12 @@
   - [Dependency Injection](EngineerMindset/general-programming/DI-IoC.md)
   - [Understanding Caching in .NET](EngineerMindset/general-programming/caching.md)
   - [Heap and Stack](EngineerMindset/general-programming/Heap-and-Stack.md)
-  - [SOLID](EngineerMindset/general-programming/SOLID)
+  - [SOLID Principles](EngineerMindset/general-programming/SOLID)
+    - [Single Responsibility Principle (SRP)](EngineerMindset/general-programming/SOLID/Single_Responsibility/SRP.md)
+    - [Open/Closed Principle (OCP)](EngineerMindset/general-programming/SOLID/Open_Closed_Principle/OCP.md)
+    - [Liskov Substitution Principle (LSP)](EngineerMindset/general-programming/SOLID/Liskov_Substitution_Principle/LSP.md)
+    - [Interface Segregation Principle (ISP)](EngineerMindset/general-programming/SOLID/Interface_Segregation_Principle/ISP.md)
+    - [Dependency Inversion Principle (DIP)](EngineerMindset/general-programming/SOLID/Dependency_Inversion_Principle/DIP.md)
 - **Overlooked Concepts In Programming**
   - [Functional Programming](Overlooked_Concepts_In_Programming/Functional_Programming.md)
   - [What is BSD](Overlooked_Concepts_In_Programming/BSD.md)
