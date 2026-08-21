@@ -1,6 +1,9 @@
 # Table of Contents
 
 - [README](README.md)
+- **C#**
+  - [IEnumerable vs IQueryable](EngineerMindset/C#/IEnumerable-IQueryable.md)
+  - [Task, ValueTask, and async/await](EngineerMindset/C#/Task-ValueTask-AsyncAwait.md)
 - **.NET**
   - [.NET AOT vs JIT](EngineerMindset/dotnet/AOT-vs-JIT.md)
 - **Web Services**
