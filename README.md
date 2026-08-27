@@ -4,6 +4,7 @@
 - **C#**
   - [IEnumerable vs IQueryable](EngineerMindset/C#/IEnumerable-IQueryable.md)
   - [Task, ValueTask, and async/await](EngineerMindset/C#/Task-ValueTask-AsyncAwait.md)
+  - [.NET 8, 9, and 10 — interview features](EngineerMindset/C#/DotNet8-9-10-Features.md)
 - **.NET**
   - [.NET AOT vs JIT](EngineerMindset/dotnet/AOT-vs-JIT.md)
 - **Web Services**
