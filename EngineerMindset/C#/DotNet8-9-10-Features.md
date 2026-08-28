@@ -396,34 +396,143 @@ public class User(string name, int age)
 
 ---
 
-## What are collection expressions?
+## What is Expression? (two different things)
 
-One syntax, `[...]`, to create many collection types. The compiler looks at the **target type** and builds the right thing.
+Interviewers say “Expression” and mean one of these. Learn both.
+
+1. **Collection expressions** — C# 12, **new**. The `[1, 2, 3]` syntax.
+2. **Expression trees** (`Expression<Func<T>>`) — **not new** (LINQ, C# 3). How EF turns a lambda into SQL.
+
+---
+
+### 1. Collection expressions (C# 12 / .NET 8) — the new syntax
+
+Before C# 12, creating a collection looked different for every type:
 
 ```csharp
-int[] ids = [1, 2, 3];
-List<string> names = ["Ada", "Grace"];
-Span<char> buffer = ['a', 'b'];
+int[] a = new[] { 1, 2, 3 };
+List<int> b = new List<int> { 1, 2, 3 };
+Span<int> c = stackalloc int[] { 1, 2, 3 };
 ```
 
-You can also **spread** another collection with `..`:
+Now you write the **same** thing. The **left side** (the target type) decides what is created:
 
 ```csharp
-int[] extra = [4, 5];
-int[] all = [1, 2, 3, ..extra, 6];   // 1,2,3,4,5,6
+int[] a = [1, 2, 3];
+List<int> b = [1, 2, 3];
+Span<int> c = [1, 2, 3];
 ```
 
-You used to write three different styles (`new[] { }`, `new List<int> { }`, `ImmutableArray.Create`). Now you write `[]` and the left-hand type decides:
+That is a **collection expression**. Brackets, values inside. You can pass it into a method too — the parameter type is the target:
 
 ```csharp
 void Print(List<int> numbers) { }
 
-Print([1, 2, 3]);          // becomes a List<int>
+Print([1, 2, 3]);   // compiler builds a List<int>
 ```
 
-Empty collection is just `[]` when the target type is clear.
+**Spread** (`..`) copies another collection into this one, like spreading cards onto the table:
 
-**Interview line:** `[1, 2, 3]` is a collection expression. Target-typed, works for arrays, lists, spans, and more. `..other` copies another collection into it.
+```csharp
+int[] extra = [4, 5];
+int[] all = [1, 2, 3, ..extra, 6];   // 1, 2, 3, 4, 5, 6
+```
+
+Empty is just `[]` when the type is already known (`int[] empty = [];`).
+
+**Interview line:** `[1, 2, 3]` is a collection expression. One syntax for array, list, span. `..other` copies items in. C# 12.
+
+---
+
+### 2. Expression trees — the other “Expression” (learn this)
+
+This is `System.Linq.Expressions`. Same word, totally different idea.
+
+A lambda in C# can be stored two ways. The **compiler looks at the variable type** and chooses:
+
+```csharp
+Func<User, bool> fn = u => u.Age > 18;
+Expression<Func<User, bool>> expr = u => u.Age > 18;
+```
+
+The `=>` looks identical. What you get is not.
+
+#### `Func` = a machine that already runs
+
+`fn` is compiled IL, like any other method. You call it. It returns a bool. The CPU has no idea it came from `Age > 18` — that information is gone.
+
+```csharp
+bool ok = fn(someUser);   // just runs. true or false.
+```
+
+`IEnumerable.Where(fn)` does this in a loop, **in your process**, on objects already in memory.
+
+#### `Expression` = the recipe, not the meal
+
+`expr` is **not** a method you can call. It is a **tree of objects** that *describe* the code:
+
+```
+        >          (GreaterThan)
+       / \
+     Age   18      (property)  (constant)
+      |
+      u            (the parameter)
+```
+
+You can inspect it at runtime (property name, operator, constant). EF Core / `IQueryable` **reads that tree** and writes SQL:
+
+```sql
+WHERE [u].[Age] > 18
+```
+
+The database does the filter. Only matching rows come over the network.
+
+If EF only had a `Func`, it would have to **download every user**, then run your C# function in memory. That is the whole point of `IQueryable`.
+
+#### You cannot “call” an expression
+
+```csharp
+expr(someUser);            // does not compile
+
+Func<User, bool> fn2 = expr.Compile();  // turn the recipe into a machine
+bool ok = fn2(someUser);   // now you can run it in memory
+```
+
+`.Compile()` is what you need to run it as C#. EF does **not** compile it — it **translates** it to SQL.
+
+#### Same lambda, different method, different fate
+
+```csharp
+IQueryable<User> dbUsers = context.Users;
+IEnumerable<User> list = dbUsers.ToList();   // already in memory
+
+dbUsers.Where(u => u.Age > 18);  // Where expects Expression<Func<...>> → SQL
+list.Where(u => u.Age > 18);     // Where expects Func<...>           → C# loop
+```
+
+You wrote the same `u => u.Age > 18`. Overload resolution picked `Expression` vs `Func` from the collection type.
+
+**The trap:** `context.Users.AsEnumerable().Where(u => u.Age > 18)` forces `Func`. SQL becomes `SELECT *` and the filter runs in C#.
+
+#### Why a tree?
+
+The compiler could have given EF a black-box method. A black box cannot become SQL. A tree can: each node is a known operation (`>`, `Age`, `18`, `And`, `StartsWith`). EF walks node by node, like translating a sentence.
+
+You almost never build the tree by hand. The compiler does it when the target type is `Expression<...>`. Hand-built (just so you see it is real objects):
+
+```csharp
+var u = Expression.Parameter(typeof(User), "u");
+var body = Expression.GreaterThan(
+    Expression.Property(u, nameof(User.Age)),
+    Expression.Constant(18));
+Expression<Func<User, bool>> expr =
+    Expression.Lambda<Func<User, bool>>(body, u);
+// same tree as: u => u.Age > 18
+```
+
+**Interview line:** `Func` is runnable code. `Expression<Func<>>` is a description of the code (a tree). EF reads the tree and generates SQL. Collection expressions `[1,2,3]` are unrelated — that is only the new C# 12 syntax.
+
+More on IQueryable: [IEnumerable vs IQueryable](IEnumerable-IQueryable.md).
 
 ---
 
@@ -580,7 +689,7 @@ If the data changes at runtime, keep a normal `Dictionary` / `ConcurrentDictiona
 ### .NET 8
 **Primary constructors?** Parameters on the class line. On classes they are **not** properties.
 
-**Collection expressions?** `[1, 2, 3]` and spread `..other`.
+**Collection expressions / “Expression”?** Two answers. New (C# 12): `[1, 2, 3]`. Old (LINQ): `Expression<Func<T>>` is a tree EF turns into SQL; `Func<T>` is already runnable code.
 
 **Keyed DI?** Several implementations, picked by a key.
 
