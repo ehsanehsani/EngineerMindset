@@ -7,10 +7,15 @@
   - [.NET 8, 9, and 10 — interview features](EngineerMindset/C#/DotNet8-9-10-Features.md)
 - **.NET**
   - [.NET AOT vs JIT](EngineerMindset/dotnet/AOT-vs-JIT.md)
+- **Architecture**
+  - [Modular Monolith](EngineerMindset/architecture/Modular-Monolith.md)
+- **Azure**
+  - [Azure Functions](EngineerMindset/azure/Azure-Functions.md)
 - **Web Services**
   - [Webhooks vs REST](EngineerMindset/web-services/Webhook-vs-REST.md)
   - [WEB API vs REST](EngineerMindset/web-services/API-General-Terms.md)
   - [PUT vs PATCH](EngineerMindset/web-services/Put-vs-Patch.md)
+  - [HTTP Status Codes](EngineerMindset/web-services/HTTP-Status-Codes.md)
   - [Understanding Sockets](EngineerMindset/web-services/sockets.md)
 - **General Programming**
   - [Dependency Injection](EngineerMindset/general-programming/DI-IoC.md)
