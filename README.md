@@ -14,6 +14,8 @@
   - [Hexagonal Architecture (Fa/En)](EngineerMindset/architecture/Hexagonal-Architecture-Fa-En.md)
 - **Azure**
   - [Azure Functions](EngineerMindset/azure/Azure-Functions.md)
+- **Messaging**
+  - [Messaging & Service Bus](EngineerMindset/messaging/Messaging-Service-Bus.md)
 - **Web Services**
   - [Webhooks vs REST](EngineerMindset/web-services/Webhook-vs-REST.md)
   - [WEB API vs REST](EngineerMindset/web-services/API-General-Terms.md)
