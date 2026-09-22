@@ -32,6 +32,52 @@ Tangled monolith          Modular monolith              Microservices
 - You get **one deployment** — no network calls between modules, easy local dev and testing.
 - Boundaries are clean enough that a module **could become a microservice later** with minimal changes to callers.
 
+## How do you decide module boundaries?
+
+This is a classic interview follow-up: *"What defines where one module ends and another begins?"*
+
+The expected answer is usually **Bounded Context** (from Domain-Driven Design / DDD) — not technical layers (Controller/Service/Repository), and not "one Entity = one module."
+
+> If someone says something like "scope entity," they often mean **Bounded Context** (or the scope of an Entity/Aggregate *inside* a context).
+
+### Bounded Context
+
+A **Bounded Context** is a conceptual boundary in the business domain. Inside that boundary there is:
+- one **shared language** (Ubiquitous Language)
+- one **coherent model**
+
+Outside that boundary, the *same word* can mean something completely different.
+
+**Classic interview example — "Customer":**
+
+| Context | What "Customer" means |
+|---------|------------------------|
+| **Sales** | CreditLimit, DiscountTier, SalesRep |
+| **Shipping** | DeliveryAddress, PreferredCarrier |
+| **Support** | TicketHistory, SLA Level |
+
+If these share one God Entity, every small change couples Sales, Shipping, and Support. So each module keeps **its own** Customer model inside its Bounded Context — same name, different meaning and rules.
+
+**Rule of thumb:** *"Do these two concepts have different rules and behavior in different parts of the business?"* If yes → separate Bounded Contexts / modules, even if the names look the same.
+
+### Why "split by Entity" is wrong
+
+Splitting modules by Entity alone ("Customer module", "Order module" as shared global models) leads to a **shared / God Entity** anti-pattern: everything depends on the same model, and modules lose autonomy.
+
+Entities live *inside* a Bounded Context. The context is the boundary — not the Entity name.
+
+### Supporting criteria (mention briefly)
+
+| Criterion | Meaning |
+|-----------|---------|
+| **High cohesion, low coupling** | Things that change together stay in one module; modules depend on each other as little as possible. |
+| **Single Responsibility (module level)** | One business reason to change. If one rule forces edits in two modules, the boundary is wrong. |
+| **Team ownership (Conway's Law)** | System structure mirrors team structure — e.g. Billing team → Billing module. |
+| **Potential independent deployability** | Mental test: *"Could we extract this into a microservice tomorrow?"* If it always queries another module's tables, the boundary is weak. |
+| **No shared tables across modules** | Each module owns its schema; others talk via interface/API or events — never direct DB access. |
+
+**Interview one-liner:** "We split modules by Bounded Context from DDD — each module owns its own language and model. We don't split by Entity name alone; the same word like Customer can mean different things in Sales vs Shipping. Helpers are high cohesion / low coupling, module-level SRP, and each module owning its own schema."
+
 ## Clean Architecture (brief)
 
 A way of organizing code in **layers**, where dependencies only point **inward** toward business logic — never outward.
