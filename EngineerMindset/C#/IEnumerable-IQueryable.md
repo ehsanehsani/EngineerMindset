@@ -71,9 +71,22 @@ listE = listE.Where(p => p.Salary > 50000);
 ```
 applies the filter in memory using LINQ-to-Objects. This may result in loading more data into memory before filtering, reducing efficiency.
 
-# Deferred Execution & Expression Trees
-### Deferred Execution:
-Both interfaces support deferred execution, meaning the query is not run until the data is actually needed (e.g., during enumeration). With IQueryable, the entire query remains part of the expression tree until execution, ensuring that all filtering happens on the database server.
+# What is an Expression tree? (`Expression<Func<T>>` vs `Func<T>`)
 
-### Expression Trees:
-An expression tree is a data structure that represents code (such as lambda expressions) as a tree of expressions. In IQueryable, the expression tree is used to translate the LINQ query into an optimized SQL query that runs on the server.
+This is the usual “what is Expression?” question in a LINQ / EF round. It is **not** a new C# 12 feature (that one is **collection expressions**: `[1, 2, 3]`).
+
+A lambda can be stored two ways:
+
+```csharp
+Func<Student, bool> fn = s => s.Age > 18;
+Expression<Func<Student, bool>> expr = s => s.Age > 18;
+```
+
+They look the same. They are not.
+
+- **`Func<...>`** — already compiled. `fn(student)` runs in your process (LINQ-to-Objects, in memory).
+- **`Expression<Func<...>>`** — **code as data**. A tree of nodes: property `Age`, operator `>`, constant `18`. You cannot call it directly. EF / `IQueryable` **walks the tree** and generates SQL: `WHERE Age > 18`. If you really want to run it in memory, you `.Compile()` it into a `Func`.
+
+That is why `IQueryable.Where` takes an expression and `IEnumerable.Where` takes a `Func`. Same lambda syntax; different parameter type. The compiler builds the tree only when the method expects `Expression<...>`.
+
+---

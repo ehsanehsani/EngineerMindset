@@ -7,6 +7,8 @@
   - [.NET 8, 9, and 10 — interview features](EngineerMindset/C#/DotNet8-9-10-Features.md)
 - **.NET**
   - [.NET AOT vs JIT](EngineerMindset/dotnet/AOT-vs-JIT.md)
+- **Tools**
+  - [Git](EngineerMindset/Tools/Git.md)
 - **Architecture**
   - [Modular Monolith](EngineerMindset/architecture/Modular-Monolith.md)
 - **Azure**

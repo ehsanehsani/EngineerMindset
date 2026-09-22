@@ -70,14 +70,96 @@ public async void Save() { await repo.SaveAsync(); }        // bad, except UI ev
 
 ### Async all the way
 
-If something returns a `Task`, **await it**. Don’t mix async with `.Result` or `.Wait()` on the same path.
+If something returns a `Task`, **await it**. Don’t mix async with `.Result` or `.Wait()` on the same path — see the next section.
+
+---
+
+# What is the difference between `await FooAsync()` and `FooAsync().Result`?
+
+Both wait for the same `Task` to finish and give you the value. The difference is **what happens to the thread while you wait**.
 
 ```csharp
-var data = await GetDataAsync();        // good — thread is free while waiting
-var data = GetDataAsync().Result;       // bad — thread is stuck until it finishes
+string name = await GetNameAsync();       // non-blocking
+string name = GetNameAsync().Result;      // blocking
 ```
 
-`.Result` is the opposite of the pager: you stand at the kitchen door until the food is ready. You also get worse exceptions (`AggregateException` instead of the real one) and, in UI apps, you can freeze or deadlock the screen.
+**`await`** — the method pauses, **gives the thread back** (thread pool, UI, request thread). That thread can serve another request or keep the window responsive. When the task completes, the method continues.
+
+**`.Result`** (same story as `.Wait()` and `.GetAwaiter().GetResult()`) — the current thread **sits there and blocks** until the task is done. It does nothing useful. In a web API that is one fewer worker for other requests. In a desktop app the UI freezes.
+
+That is already enough to prefer `await`. Two extra reasons interviewers like:
+
+**1. Deadlock (UI / old ASP.NET)**  
+The UI thread calls `.Result` and waits. Inside, `GetNameAsync` does `await http.GetStringAsync(...)` and wants to **resume on that same UI thread**. The UI thread is busy blocked on `.Result`. Nobody can move. Hang forever.
+
+`await` never holds the thread, so the continuation can run.
+
+ASP.NET Core has no SynchronizationContext, so this exact deadlock is rare there — but `.Result` still wastes a thread-pool thread (**thread-pool starvation** under load).
+
+**2. Exceptions**  
+`await` throws the **real** exception (`HttpRequestException`, `InvalidOperationException`, …).  
+`.Result` wraps it in `AggregateException`. Your `catch` of the inner type misses it unless you unwrap.
+
+```csharp
+try { await BoomAsync(); }          // catch InvalidOperationException — works
+try { BoomAsync().Result; }         // catch InvalidOperationException — often misses
+```
+
+When is `.Result` acceptable? Almost never on a call that is still running. After `await Task.WhenAll(...)`, the tasks are already done — `userTask.Result` is then just reading a finished value (or keep using `await userTask`, which is immediate and still unwraps exceptions cleanly).
+
+**Interview line:** Same result, different wait. `await` frees the thread. `.Result` blocks it, can deadlock a UI, and wraps exceptions in `AggregateException`. Always `await`.
+
+---
+
+# Does `await MethodB()` create a new thread?
+
+This is the question they ask with two nested async methods. Code looks like this:
+
+```csharp
+async Task MethodA()
+{
+    await MethodB();
+}
+
+async Task MethodB()
+{
+    var result = HeavyCpuWork();   // hashing, a big loop, image resize — CPU
+    await SomethingAsync();        // HTTP / DB — waiting
+}
+```
+
+**Short answer:** `async` / `await` does **not** create a thread. It is still **one story, in order**. Threads may **change** after an `await`. They do not run MethodA and MethodB **in parallel**.
+
+Walk through it. Somebody (a controller, a button click) calls `await MethodA()` on **Thread 1**.
+
+| Step | What runs | Which thread |
+|---|---|---|
+| 1 | `MethodA` starts, calls `MethodB()` | Thread 1 |
+| 2 | `HeavyCpuWork()` | **Still Thread 1** — this **blocks**. No extra thread. The UI freezes / the request thread is busy. |
+| 3 | `await SomethingAsync()` | Thread 1 is **released**. Nobody sits idle waiting for HTTP. |
+| 4 | `SomethingAsync` completes, `MethodB` continues after `await` | Thread pool thread (ASP.NET Core) — maybe Thread 1, maybe Thread 2. UI apps: back to the UI thread unless `ConfigureAwait(false)`. |
+| 5 | `MethodB` finishes, `MethodA` continues after `await` | Same rule as step 4 |
+
+So:
+
+- **Before the first `await`**, everything is **synchronous on the caller’s thread**. Marking the method `async` does not move `HeavyCpuWork` off Thread 1.
+- **`await` of I/O** is the pause. No dedicated thread is created for the HTTP call.
+- **After `await`**, work **resumes** — often on a **different** thread-pool thread. That is a thread **switch**, not “a new thread was created for this method.”
+- MethodA and MethodB never run **together**. B runs; A is paused at `await MethodB()`. Then A continues.
+
+If they wanted the CPU work off the request/UI thread, that is the one place for `Task.Run`:
+
+```csharp
+async Task MethodB()
+{
+    var result = await Task.Run(() => HeavyCpuWork());  // now a pool thread does the CPU
+    await SomethingAsync();
+}
+```
+
+Do **not** wrap `SomethingAsync` in `Task.Run`. That I/O already awaits.
+
+**Interview line:** `await` does not start a thread. CPU code before the first `await` runs on the caller’s thread and blocks it. After `await`, you may continue on another pool thread. One flow, not two methods in parallel.
 
 ---
 
@@ -280,7 +362,9 @@ var json = await GetAsync(url, cts.Token);
 
 **Why not async void?** Caller cannot await it. Exceptions are easy to lose. Only event handlers.
 
-**Why not .Result / .Wait()?** Blocks a thread, worse exceptions, can freeze or deadlock a UI. Await instead.
+**`await` vs `.Result`?** Same value. `await` frees the thread; `.Result` blocks it, can deadlock UI/old ASP.NET, and throws `AggregateException`. Always `await`.
+
+**Does await create a thread?** No. Nested `async` methods are one sequential flow. CPU work before the first `await` stays on the caller’s thread. After `await`, you may resume on a different pool thread. `Task.Run` is what moves CPU work.
 
 **When Task.Run?** CPU-heavy work you want off the UI/request thread. Not for HTTP/DB that already has an async API.
 
