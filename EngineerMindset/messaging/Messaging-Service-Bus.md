@@ -30,6 +30,13 @@ Your instinct (transaction / rollback) is right about the risk. Industry solutio
 
 ### Industry solution: Transactional Outbox
 
+<div dir="rtl" lang="fa">
+
+**خلاصه:**  
+به‌جای اینکه مستقیم در دیتابیس ذخیره کنی و هم‌زمان ایونت بفرستی (که ممکن است یکی موفق شود و دیگری نه)، هر دو را در **یک تراکنش دیتابیس** می‌نویسی: رکورد اصلی (مثلاً سفارش) + یک رکورد در جدول Outbox برای همان ایونت. بعداً یک پروسه جدا از دیتابیس آن رکورد Outbox را می‌خواند و به بروکر publish می‌کند. این‌طور ذخیره و «قصد ارسال ایونت» با هم یا موفق می‌شوند یا هیچ‌کدام.
+
+</div>
+
 1. In one DB transaction: insert business data **and** insert a row into an `Outbox` table (the event payload).
 2. A background process (or CDC) reads the Outbox and publishes to Service Bus / Kafka.
 3. After successful publish, mark the Outbox row as sent (or delete it).
