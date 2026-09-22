@@ -11,6 +11,7 @@
   - [Git](EngineerMindset/Tools/Git.md)
 - **Architecture**
   - [Modular Monolith](EngineerMindset/architecture/Modular-Monolith.md)
+  - [Hexagonal Architecture (Fa/En)](EngineerMindset/architecture/Hexagonal-Architecture-Fa-En.md)
 - **Azure**
   - [Azure Functions](EngineerMindset/azure/Azure-Functions.md)
 - **Web Services**
