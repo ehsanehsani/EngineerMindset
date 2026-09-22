@@ -76,10 +76,10 @@ API ──► [Orders + Outbox]  same DB transaction
 
 ## Delivery guarantees (almost always asked)
 
-| Guarantee | Meaning | Risk |
-|-----------|---------|------|
-| **At-most-once** | Send and forget; may never arrive | Message loss |
-| **At-least-once** | Delivered ≥ 1 time; may duplicate | Duplicate processing |
+| Guarantee | Meaning | Risk / typical use |
+|-----------|---------|-------------------|
+| **At-most-once** | Send and forget; may never arrive | Message loss. OK for **non-critical** data — e.g. some logs, metrics, telemetry — where speed matters more than never losing a message. |
+| **At-least-once** | Delivered ≥ 1 time; may duplicate | Duplicate processing. Default for most business messaging; consumer must be **idempotent**. |
 | **Exactly-once** | Ideal: process once only | Hard/expensive on the network |
 
 **Most brokers = at-least-once.** True exactly-once on the wire is basically impractical (Two Generals problem). In practice you get **exactly-once effect** with:
@@ -88,7 +88,7 @@ API ──► [Orders + Outbox]  same DB transaction
 
 <div dir="rtl" lang="fa">
 
-**برای مصاحبه:** exactly-once خالص روی شبکه تقریباً غیرممکن یا خیلی گران است. در عمل: تحویل حداقل‌یک‌بار + مصرف‌کننده بدون اثر تکراری.
+**برای مصاحبه:** exactly-once خالص روی شبکه تقریباً غیرممکن یا خیلی گران است. در عمل: تحویل حداقل‌یک‌بار + مصرف‌کننده بدون اثر تکراری. برای لاگ و متریک غیرحیاتی معمولاً at-most-once کافی است.
 
 </div>
 
@@ -96,10 +96,18 @@ API ──► [Orders + Outbox]  same DB transaction
 
 Same message processed twice → same final result as once.
 
-- Store processed **MessageId** (DB table / Redis); skip if already done
+Because at-least-once can deliver the **same message more than once** (e.g. consumer crashes after work but before Ack → broker redelivers), the consumer must detect duplicates.
+
+**Common approach — save MessageId:**
+1. Every message has a unique **MessageId** (or business key).
+2. Before processing, check a store (DB table / Redis): “Have I already processed this id?”
+3. If yes → **skip** (Ack and stop). If no → process, then **save the MessageId**, then Ack.
+
+That way a redelivery does not charge twice, create two orders, send two emails, etc.
+
+Other helpers:
 - Prefer conditional updates (`WHERE status <> 'done'`) over blind increments
 - Unique constraints so duplicate inserts fail safely
-
 ---
 
 ## Ack, Lock, and duplicates
