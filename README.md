@@ -41,6 +41,13 @@
     - [Lab 06 — Choreography Saga](EngineerMindset/messaging/training/06-Saga-Choreography.md)
     - [Lab 07 — Capstone](EngineerMindset/messaging/training/07-Capstone.md)
   - [Messaging & Outbox Pattern (older notes)](EngineerMindset/messaging/Messaging-Outbox-Pattern.md)
+- **Real-Time Push (SignalR + Redis)** — [Project overview & full learning path](Real-Time-Push/README.md)
+  - [Real-time push fundamentals (polling, SSE, WebSockets)](Real-Time-Push/docs/01-realtime-push-fundamentals.md)
+  - [How SignalR works](Real-Time-Push/docs/02a-signalr-how-it-works.md)
+  - [Scaling with a Redis backplane](Real-Time-Push/docs/04-scaling-and-redis.md)
+  - [Interview questions](Real-Time-Push/docs/06-interview-questions.md)
+  - [Cheatsheet](Real-Time-Push/docs/07-cheatsheet.md)
+  - [Hands-on training (LiveChat course)](Real-Time-Push/training/README.md)
 - **Web Services**
   - [Webhooks vs REST](EngineerMindset/web-services/Webhook-vs-REST.md)
   - [WEB API vs REST](EngineerMindset/web-services/API-General-Terms.md)

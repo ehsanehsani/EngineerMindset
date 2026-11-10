@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini Roulette</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header>
+    <h1>Mini Roulette <small>Phase 1: basic SignalR</small></h1>
+    <div class="status">
+      Connection: <span id="connection-status" class="badge">connecting…</span>
+      <span id="connection-id" class="muted"></span>
+    </div>
+    <div class="jackpot">Jackpot (all tables): <strong id="jackpot">0.00</strong></div>
+  </header>
+
+  <main>
+    <section class="game">
+      <div class="card">
+        <h2>Join a table</h2>
+        <div class="row">
+          <input id="nickname" placeholder="Nickname" maxlength="20">
+          <select id="table-select">
+            <option value="table-1">table-1</option>
+            <option value="table-2">table-2</option>
+          </select>
+          <button id="join-btn">Join</button>
+          <button id="leave-btn" disabled>Leave</button>
+        </div>
+        <div id="current-table" class="muted">Not at a table.</div>
+      </div>
+
+      <div class="card">
+        <h2>Round</h2>
+        <div class="round">
+          <span id="phase" class="phase">—</span>
+          <span id="countdown" class="countdown">—</span>
+          <span id="round-id" class="muted"></span>
+        </div>
+        <div id="result" class="result muted">No result yet.</div>
+      </div>
+
+      <div class="card">
+        <h2>Your bet</h2>
+        <div class="row">
+          <input id="amount" type="number" min="1" value="50">
+          <select id="target"></select>
+          <button id="bet-btn" disabled>Place bet</button>
+        </div>
+        <label class="muted">
+          <input id="force-enable" type="checkbox">
+          Keep the bet button enabled (to test that the <em>server</em> rejects late bets)
+        </label>
+        <div id="bet-message" class="message"></div>
+      </div>
+
+      <div class="card private">
+        <h2>Private to you</h2>
+        <div>Balance: <strong id="balance">—</strong></div>
+        <div id="my-result" class="muted">No round played yet.</div>
+      </div>
+
+      <div class="card">
+        <h2>Table</h2>
+        <h3>Players</h3>
+        <ul id="players"></ul>
+        <h3>Bets this round</h3>
+        <ul id="bets"></ul>
+      </div>
+    </section>
+
+    <section class="log card">
+      <div class="log-header">
+        <h2>Live event log</h2>
+        <button id="clear-log">Clear</button>
+      </div>
+      <p class="muted">⬇ pushed by the server · ⬆ invoked by this browser · ⚠ error</p>
+      <ol id="log"></ol>
+    </section>
+  </main>
+
+  <!-- CONCEPT: The official SignalR JavaScript client, pinned to an exact version from a CDN.
+       (see docs/02-signalr-concepts.md#transports-and-negotiation) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
