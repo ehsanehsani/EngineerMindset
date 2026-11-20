@@ -21,6 +21,46 @@ Two different systems, **no shared transaction**:
 
 ### Why not a distributed transaction (2PC / XA / MSDTC)?
 
+**What is 2PC?** *Two-Phase Commit* is a protocol that makes several separate systems (e.g. your database **and** the message broker) commit **all together or not at all**. A **coordinator** runs it in two steps:
+
+1. **Prepare (vote):** the coordinator asks every participant "can you commit?" Each one does the work, locks the data, and answers *yes* or *no*.
+2. **Commit / Rollback:** if **everyone** said yes, the coordinator tells all of them to commit; if **anyone** said no (or didn't answer), it tells all of them to roll back.
+
+**XA** is the standard interface for this protocol, and **MSDTC** (Microsoft Distributed Transaction Coordinator) is Windows' implementation of the coordinator.
+
+**Who takes part, and who is the coordinator?**
+
+- **Every participant must support the protocol.** Each system has to be able to "prepare" (hold the change in a pending, locked state) and then wait for the final commit/rollback. If even one system can't, 2PC is impossible.
+  - SQL Server, Oracle, PostgreSQL, MySQL → **yes** (they can join XA / MSDTC transactions).
+  - **MSMQ**, IBM MQ, ActiveMQ → **yes**.
+  - **RabbitMQ, Kafka, Azure Service Bus (with a DB), AWS SQS** → **no**. (RabbitMQ's channel transactions and Kafka transactions only cover the broker itself, not your database.)
+- **The coordinator is *not* your code.** It is a separate component called a **transaction manager**: MSDTC on Windows/.NET, or a JTA manager (Atomikos, Narayana) in Java. Your code only opens and completes the transaction; the transaction manager talks to the participants and runs the two phases.
+
+**Simple scenario — placing an order with SQL Server + MSMQ (both support MSDTC):**
+
+```csharp
+using (var scope = new TransactionScope())          // your code: "start a transaction"
+{
+    db.Orders.Add(order);
+    db.SaveChanges();                                // participant 1: SQL Server joins
+
+    queue.Send(new OrderPlaced(order.Id),
+               MessageQueueTransactionType.Automatic); // participant 2: MSMQ joins
+                                                       // → two resources, so .NET hands
+                                                       //   the transaction to MSDTC
+
+    scope.Complete();                                // your code: "I'm done, please commit"
+}                                                    // MSDTC now runs the two phases:
+```
+
+1. **Prepare:** MSDTC asks SQL Server "ready?" → *yes* (order row written but locked). Asks MSMQ "ready?" → *yes* (message stored but invisible).
+2. **Commit:** both said yes → MSDTC tells both to commit. The order and the message appear **together**.
+   - If MSMQ had said *no* (disk full, service down), MSDTC would tell SQL Server to roll back → **no order, no message**. No lost or ghost event.
+
+**Now swap MSMQ for RabbitMQ:** RabbitMQ can't join the MSDTC transaction, so the `TransactionScope` only covers SQL Server and you are back to the dual-write problem above. That is why the outbox pattern exists.
+
+So 2PC sounds like the perfect fix for dual writes, but in practice:
+
 - Most modern brokers (Kafka, Service Bus with most setups, cloud services) **don't support** joining a 2PC with your DB.
 - 2PC is slow, holds locks, and the coordinator is a single point of failure.
 - **Availability** suffers: if any participant is down, nothing commits.
@@ -84,16 +124,60 @@ MassTransit (EF Core outbox), NServiceBus (outbox), Wolverine, CAP (DotNetCore.C
 
 ## 3. Inbox (idempotent receiver)
 
-The mirror image on the consumer side:
+### The problem: the same message can arrive twice
 
+The outbox gives you **at-least-once** delivery, so duplicates *will* happen. For example:
+
+- The outbox relay publishes, crashes before marking the row processed, and publishes again.
+- The consumer processes the message, crashes **before sending the ACK**, and the broker redelivers it.
+
+**Scenario:** the Billing service receives `OrderPlaced { MessageId = 42, OrderId = 7 }` and charges the customer €50. If message 42 arrives twice, the customer is charged **€100**. 😱
+
+### The idea: keep a "receipt book"
+
+Think of a cashier who writes every paid invoice number into a receipt book. When an invoice shows up, the cashier first checks the book: *"Already paid? Then ignore it."*
+
+The **Inbox** is that receipt book: a table of the `MessageId`s this consumer has **already processed**.
+
+```sql
+CREATE TABLE Inbox (
+    MessageId   UNIQUEIDENTIFIER PRIMARY KEY,   -- unique: the same id can't be stored twice
+    ProcessedAt DATETIME2 NOT NULL
+);
 ```
-on message M:
-  BEGIN TX
-    INSERT Inbox (MessageId = M.Id)       ← unique constraint; duplicate → violation → skip
-    apply business change
-  COMMIT
-  ACK
+
+### The key trick: same transaction
+
+Recording the receipt and doing the work must happen in **one local DB transaction**, so they succeed or fail together:
+
+```csharp
+async Task Handle(OrderPlaced msg)
+{
+    using var tx = await db.Database.BeginTransactionAsync();
+
+    if (await db.Inbox.AnyAsync(x => x.MessageId == msg.MessageId))
+        return;                                   // already processed → just ACK, do nothing
+
+    db.Inbox.Add(new InboxRow(msg.MessageId));    // 1. write the receipt
+    db.Payments.Add(Charge(msg.OrderId, 50));     // 2. do the business work
+
+    await db.SaveChangesAsync();                  // the PRIMARY KEY blocks a parallel duplicate
+    await tx.CommitAsync();
+}   // the broker is ACKed after Handle returns
 ```
+
+### Walk through the failure cases
+
+| What happens | Result |
+|---|---|
+| Message 42 arrives the first time | No receipt → charge €50, store receipt 42 → ACK ✅ |
+| Crash **before COMMIT** | Both the charge and the receipt roll back → redelivery processes it cleanly ✅ |
+| Crash **after COMMIT, before ACK** | Broker redelivers 42 → receipt found → skip → ACK ✅ (charged once) |
+| Two instances receive 42 **at the same time** | Both try to insert receipt 42 → the PK lets only one commit; the other fails and on retry sees the receipt ✅ |
+
+**Why not just check and then act without a transaction?** If you charge the customer and crash before saving the receipt, the redelivered message finds no receipt and charges again. Tying the receipt and the work into one transaction closes that gap. It's the same trick as the outbox, used on the receiving side.
+
+> **Note:** this only protects work done **in the same database**. If the handler calls an external API (for example a payment provider), pass `MessageId` as that API's **idempotency key** too.
 
 Variants:
 - **Dedup-only inbox:** just a processed-IDs table (as above).
